@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <cmath>
 #include <complex>
 #include <armadillo>
@@ -278,6 +279,11 @@ void maskR(arma::cx_mat &Mask, arma::vec &r, arma::vec &z, double rb, double gam
 int main(){
     omp_set_num_threads(OMP_NUM_THREADS);
 
+    #ifdef TEXTOUTPUT
+    std::ofstream outfile;
+    outfile.open("output.txt");
+    #endif
+
     double rmin = 0;
     double rmax = 100;
     int Nr = 1000;
@@ -293,7 +299,22 @@ int main(){
     double dt = 0.02;
     int Nt = (tmax-t0)/dt;
     int Nsteps = 10;
-
+    
+    #ifdef TEXTOUTPUT
+    outfile<<"Parameters:\n";
+    outfile<<"-------------\n";
+    outfile<<"rmin: "<<rmin<<std::endl;
+    outfile<<"rmax: "<<rmax<<std::endl;
+    outfile<<"Nr: "<<Nr<<std::endl;
+    outfile<<"dr: "<<dr<<std::endl;
+    outfile<<"zmin: "<<zmin<<std::endl;
+    outfile<<"zmax: "<<zmax<<std::endl;
+    outfile<<"Nz: "<<Nz<<std::endl;
+    outfile<<"dz: "<<dz<<std::endl;
+    outfile<<"tlim: "<<tmax<<std::endl;
+    outfile<<"Nt: "<<Nt<<std::endl;
+    outfile<<"dt: "<<dt<<std::endl;
+    #else
     std::cout<<"Parameters:\n";
     std::cout<<"-------------\n";
     std::cout<<"rmin: "<<rmin<<std::endl;
@@ -307,7 +328,7 @@ int main(){
     std::cout<<"tlim: "<<tmax<<std::endl;
     std::cout<<"Nt: "<<Nt<<std::endl;
     std::cout<<"dt: "<<dt<<std::endl;
-
+    #endif
     std::complex<double> norm;
     std::complex<double> energy;
 
@@ -383,15 +404,16 @@ int main(){
     derivativeZ(V,z,dV);
     //dV.save("dV.dat",arma::raw_ascii);
 
-    std::cout<<"Mask\n";
     maskZ(MaskZ,r,z,12.0,1.0);
-    std::cout<<"MaskZ\n";
     maskR(MaskR,r,z,10.0,1.0);
-    std::cout<<"MaskR\n";
     //MaskZ.save("MaskZ.dat",arma::raw_ascii);
     //MaskR.save("MaskR.dat",arma::raw_ascii);
     norm = 2*M_PI*arma::as_scalar(arma::sum(arma::sum(R%arma::conj(Psi)%Psi*dr,0)*dz,1));
+    #ifdef TEXTOUTPUT
+    outfile<<"Norm: "<<norm<<" Energy: "<<Energy(Hr_dl,Hr_d,Hr_du,Hz_dl,Hz_d,Hz_du,Psi,R,r,z)<<std::endl;
+    #else
     std::cout<<"Norm: "<<norm<<" Energy: "<<Energy(Hr_dl,Hr_d,Hr_du,Hz_dl,Hz_d,Hz_du,Psi,R,r,z)<<std::endl;
+    #endif
     Mask = MaskZ%MaskR;
     double start = omp_get_wtime();
     for(int i=0;i<Nt;i++){
@@ -431,7 +453,11 @@ int main(){
         StepZ(Mz_dl,Mz_d,Mz_du,Mpz_dl,Mpz_d,Mpz_du,Psi,PsiZ,Nr,Nz);       
         #ifdef DEBUG2
            double end_stepz1 = omp_get_wtime();
+           #ifdef TEXTOUTPUT
+	   outfile<<"[DEBUG2] StepZ_1 exectime: "<<(end_stepz1-start_stepz1)*1000<<" ms\n";
+           #else
 	   std::cout<<"[DEBUG2] StepZ_1 exectime: "<<(end_stepz1-start_stepz1)*1000<<" ms\n";
+           #endif
         #endif         
 	
  	#ifdef DEBUG2
@@ -440,7 +466,11 @@ int main(){
         StepR(Mr_dl,Mr_d,Mr_du,Mpr_dl,Mpr_d,Mpr_du,PsiZ,PsiR,Nr,Nz);
         #ifdef DEBUG2
            double end_stepr = omp_get_wtime();
+           #ifdef TEXTOUTPUT
+           outfile<<"[DEBUG2] StepR exectime: "<<(end_stepr-start_stepr)*1000<<" ms\n";
+           #else
            std::cout<<"[DEBUG2] StepR exectime: "<<(end_stepr-start_stepr)*1000<<" ms\n";
+           #endif
         #endif
        
         #ifdef DEBUG2
@@ -449,7 +479,12 @@ int main(){
         StepZ(Mz_dl,Mz_d,Mz_du,Mpz_dl,Mpz_d,Mpz_du,PsiR,Psi,Nr,Nz);
         #ifdef DEBUG2
            double end_stepz2 = omp_get_wtime();
-           std::cout<<"[DEBUG2] StepZ_2 exectime: "<<(end_stepz2-start_stepz2)*1000<<" ms\n";
+           
+           #ifdef TEXTOUTPUT
+	   outfile<<"[DEBUG2] StepZ_2 exectime: "<<(end_stepz2-start_stepz2)*1000<<" ms\n";
+           #else
+	   std::cout<<"[DEBUG2] StepZ_2 exectime: "<<(end_stepz2-start_stepz2)*1000<<" ms\n";
+           #endif
         #endif 
 
 	#ifdef DEBUG2
@@ -458,7 +493,11 @@ int main(){
         Psi = Psi%Mask;
         #ifdef DEBUG2
            double end_mask = omp_get_wtime();
+           #ifdef TEXTOUTPUT 
+	   outfile<<"[DEBUG2] Mask execitme: "<<(end_mask-start_mask)*1000<<" ms\n";
+           #else
 	   std::cout<<"[DEBUG2] Mask execitme: "<<(end_mask-start_mask)*1000<<" ms\n";
+           #endif
         #endif
 
 	#ifdef DEBUG2
@@ -467,24 +506,40 @@ int main(){
         acc(i) = AcceZ(Psi,V,VecPotential(i),MagneticField(i),R,r,z);
 	#ifdef DEBUG2
   	   double end_acc = omp_get_wtime();
+	   #ifdef TEXTOUTPUT
+	   outfile<<"[DEBUG2] Acc exectime: "<<(end_acc-start_acc)*1000<<" ms\n";
+           #else
 	   std::cout<<"[DEBUG2] Acc exectime: "<<(end_acc-start_acc)*1000<<" ms\n";
+           #endif
 	#endif
 
         //PsiOld = PsiR2/sqrt(Norm);
 	double end_step = omp_get_wtime();
 	if (i%Nsteps==0){
-	    std::cout<<"[DEBUG] Time from init: "<<(end_step-start)<<"\n";
             norm = 2*M_PI*arma::as_scalar(arma::sum(arma::sum(R%arma::conj(Psi)%Psi*dr,0)*dz,1));
             energy = Energy(Hr_dl,Hr_d,Hr_du,Hz_dl,Hz_d,Hz_du,Psi,R,r,z);
             normVec(i%Nsteps) = norm;
             enerVec(i%Nsteps) = energy;
+ 	    
+            #ifdef TEXTOUTPUT
+	    outfile<<"[DEBUG] Time from init: "<<(end_step-start)<<"\n";
+  	    outfile<<"Step: "<<i<<" Norm: "<<norm<<" Energy "<< energy<<"\n\n";
+            #else
+	    std::cout<<"[DEBUG] Time from init: "<<(end_step-start)<<"\n";
   	    std::cout<<"Step: "<<i<<" Norm: "<<norm<<" Energy "<< energy<<"\n\n";
+            #endif
         }
     }
     double end = omp_get_wtime();
+    
+    #ifdef TEXTOUTPUT 
+    outfile <<"Simulation exectime: "<<(end-start)*1000<<std::endl;
+    outfile <<"Timestep exectime: "<<(end-start)*1000/Nt<<std::endl;
+    #else
+    std::cout <<"Simulation exectime: "<<(end-start)*1000<<std::endl;
+    std::cout <<"Timestep exectime: "<<(end-start)*1000/Nt<<std::endl;
+    #endif
 
-   std::cout <<"Simulation exectime: "<<(end-start)*1000<<std::endl;
-   std::cout <<"Timestep exectime: "<<(end-start)*1000/Nt<<std::endl;
     Psi2 = arma::conv_to<arma::dmat>::from(arma::conj(Psi)%Psi);
     Psi2.save("PsiEnd1.dat",arma::raw_ascii);
     acc.save("acc1.dat",arma::raw_ascii);
@@ -495,5 +550,8 @@ int main(){
     ElectricField.save("ElectricField1.dat",arma::raw_ascii);
     //PsiOld.save("PsiGround.dat",arma::raw_ascii);
 
+    #ifdef TEXTOUTPUT
+    outfile.close();
+    #endif
     return 0;
 }

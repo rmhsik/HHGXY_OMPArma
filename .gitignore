@@ -4,3 +4,4 @@ Evolution2
 *.swp
 run.sh
 *.out
+output.txt
