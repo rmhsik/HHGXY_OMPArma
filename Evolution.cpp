@@ -100,35 +100,6 @@ void HamZ(arma::cx_mat &Hz, arma::dmat &Potential,double VecPot, double BField, 
     Hz.col(2)(0) = 0.0;
 }
 
-/*void StepR(arma::cx_mat &Psi,arma::cx_mat &PsiOut, arma::dmat &V,double VecPot, double BField,arma::vec &r, const double dr, int Nr, arma::dmat &R,
-           arma::vec &z, const double dz, int Nz, const double t, const std::complex<double> dt){
-
-    arma::cx_mat PsiNew(Nr,Nz,arma::fill::zeros);
-    arma::cx_mat M(Nr,3,arma::fill::zeros);
-    arma::cx_mat Mp(Nr,3,arma::fill::zeros);
-    arma::cx_mat Hr(Nr,3,arma::fill::zeros);
-    arma::cx_mat Iden(Nr,3,arma::fill::zeros);
-    Iden.col(1) = arma::ones<arma::cx_colvec>(Nr);
-    arma::cx_colvec b(Nr);
-    arma::cx_colvec PsiCol(Nr);
-    arma::cx_colvec PsiColNew(Nr);
-    int j;
-
-    //#pragma omp parallel for private(j)
-    for (j=0;j<Nz;j++){
-        HamR(Hr, V, BField, r, dr, R, j);
-        PsiCol = Psi.col(j);
-        M = Iden-std::complex<double>(0.0,1.0)/2.0*Hr*dt;
-        Mp = Iden+std::complex<double>(0.0,1.0)/2.0*Hr*dt;
-        //M.save("M.dat",arma::raw_ascii);
-        tridot(Mp,PsiCol,b,Nr);
-        tdmaSolver(M,b,PsiColNew,Nr);
-        PsiNew.col(j) = PsiColNew;
-    }
-    PsiOut = PsiNew;
-}*/
-
-
 void StepR(arma::cx_mat &Mr_dl, arma::cx_mat &Mr_d, arma::cx_mat &Mr_du, arma::cx_mat &Mpr_dl, arma::cx_mat &Mpr_d, arma::cx_mat &Mpr_du,arma::cx_mat &Psi, arma::cx_mat &PsiOut, const int Nr,const int Nz){
 
     arma::cx_mat PsiNew(Nr,Nz,arma::fill::zeros);
@@ -162,10 +133,7 @@ void StepR(arma::cx_mat &Mr_dl, arma::cx_mat &Mr_d, arma::cx_mat &Mr_du, arma::c
 
 void StepZ(arma::cx_mat &Mz_dl, arma::cx_mat &Mz_d, arma::cx_mat &Mz_du, arma::cx_mat &Mpz_dl, arma::cx_mat &Mpz_d, arma::cx_mat &Mpz_du,arma::cx_mat &Psi, arma::cx_mat &PsiOut, const int Nr,const int Nz){
     arma::cx_mat PsiNew(Nr,Nz,arma::fill::zeros);
-        //for (int j=0; j<Nr; j++){
-    //    tridot(Mpz_dl,Mpz_d,Mpz_du,Psi,b,Nz,Nr,j);
-    //}
-    //std::cout<<"Here\n";
+    
     double start = omp_get_wtime();
     #pragma omp parallel for
     for (int j=0; j<Nr;j++){
@@ -193,35 +161,6 @@ void StepZ(arma::cx_mat &Mz_dl, arma::cx_mat &Mz_d, arma::cx_mat &Mz_du, arma::c
     #endif 
     PsiOut = PsiNew;
 }
-
-
-/*void StepZ(arma::cx_mat &Psi,arma::cx_mat &PsiOut, arma::dmat &V, double VecPot, double BField,arma::vec &r, const double dr, int Nr, arma::dmat &R,
-           arma::vec &z, const double dz, int Nz, const double t, const std::complex<double> dt){
-
-    arma::cx_mat PsiNew(Nr,Nz,arma::fill::zeros);
-    arma::cx_mat M(Nz,3,arma::fill::zeros);
-    arma::cx_mat Mp(Nz,3,arma::fill::zeros);
-    arma::cx_mat Hz(Nz,3,arma::fill::zeros);
-    arma::cx_mat Iden(Nz,3,arma::fill::zeros);
-    Iden.col(1) = arma::ones<arma::cx_colvec>(Nz);
-    arma::cx_colvec b(Nz);
-    arma::cx_colvec PsiCol(Nz);
-    arma::cx_colvec PsiColNew(Nz);
-    int j;
-    //#pragma omp parallel for private(j)
-   
-    for (j=0;j<Nr;j++){
-        HamZ(Hz, V,VecPot,BField, z, dz, R, j);
-        PsiCol = Psi.row(j).t();
-        M = Iden+std::complex<double>(0.0,1.0)/2.0*Hz*dt;
-        Mp = Iden-std::complex<double>(0.0,1.0)/2.0*Hz*dt;
-        tridot(Mp,PsiCol,b,Nz);
-        tdmaSolver(M,b,PsiColNew,Nz);
-        PsiNew.row(j) = PsiColNew.t();
-    }
-     //M.save("M.dat",arma::raw_ascii);
-    PsiOut = PsiNew;
-}*/
 
 std::complex<double> Energy(arma::cx_mat Hr_dl, arma::cx_mat Hr_d, arma::cx_mat Hr_du, arma::cx_mat Hz_dl, arma::cx_mat Hz_d,arma::cx_mat Hz_du,arma::cx_mat &Psi, arma::dmat &R,arma::vec &r, arma::vec &z){
     arma::cx_mat PsiNewR(r.n_elem,z.n_elem,arma::fill::zeros);
@@ -278,7 +217,6 @@ void derivativeZ(arma::dmat &U, arma::dmat z, arma::dmat &DU){
     for(int i=0;i<U.n_rows;i++){
         DU(i,U.n_cols-1) = (U(i,U.n_cols-1)-U(i,U.n_cols-2))/dz;
     }
-        //std::cout<<"lol"<<std::endl;
 
     for(int i=0;i<U.n_rows;i++){
         for(int j=1; j<U.n_cols-1;j++){
@@ -433,15 +371,8 @@ int main(){
         VecPotential(i) = -137.04*intSimpson(EField,0,t(i),6000);
     }
 
-
-
     CoulombPotential(V,r,z);
-    //Gaussian(Psi,r,z,0.0,0.0,4.0);
-    //std::complex<double> Norm = 2*M_PI*arma::as_scalar(arma::sum(arma::sum(R%arma::conj(Psi)%Psi*dr,0)*dz,1));
-    //std::cout<< Norm <<std::endl;
-    //Psi = Psi/sqrt(Norm);
     Psi.load("PsiGround_120_120.dat",arma::raw_ascii);
-    //std::cout<< 2*M_PI*arma::as_scalar(arma::sum(arma::sum(R%arma::conj(Psi)%Psi*dr,0)*dz,1))<<std::endl;
 
     //V.save("Coulomb.dat",arma::raw_ascii);
     Psi2  = arma::conv_to<arma::dmat>::from(arma::conj(Psi)%Psi);
@@ -494,21 +425,52 @@ int main(){
 	    Mpz_d.col(j) = 1.0 - std::complex<double>(0.0,1.0)*Hz.col(1)*dt/4.0;
 	    Mpz_du.col(j) = -std::complex<double>(0.0,1.0)*Hz.col(2)*dt/4.0;
         }
-
-        StepZ(Mz_dl,Mz_d,Mz_du,Mpz_dl,Mpz_d,Mpz_du,Psi,PsiZ,Nr,Nz);
-        //PsiZ = Psi%MaskZ%MaskR;
+	#ifdef DEBUG2
+           double start_stepz1 = omp_get_wtime();
+        #endif 
+        StepZ(Mz_dl,Mz_d,Mz_du,Mpz_dl,Mpz_d,Mpz_du,Psi,PsiZ,Nr,Nz);       
+        #ifdef DEBUG2
+           double end_stepz1 = omp_get_wtime();
+	   std::cout<<"[DEBUG2] StepZ_1 exectime: "<<(end_stepz1-start_stepz1)*1000<<" ms\n";
+        #endif         
+	
+ 	#ifdef DEBUG2
+	   double start_stepr = omp_get_wtime();
+	#endif
         StepR(Mr_dl,Mr_d,Mr_du,Mpr_dl,Mpr_d,Mpr_du,PsiZ,PsiR,Nr,Nz);
-        //StepR(PsiZ,PsiR,V,VecPotential(i),MagneticField(i),r,dr,Nr, R,z,dz,Nz,t(i),dt);
-        //PsiR = PsiR%MaskZ%MaskR;
+        #ifdef DEBUG2
+           double end_stepr = omp_get_wtime();
+           std::cout<<"[DEBUG2] StepR exectime: "<<(end_stepr-start_stepr)*1000<<" ms\n";
+        #endif
+       
+        #ifdef DEBUG2
+           double start_stepz2 = omp_get_wtime();
+	#endif
         StepZ(Mz_dl,Mz_d,Mz_du,Mpz_dl,Mpz_d,Mpz_du,PsiR,Psi,Nr,Nz);
-        Psi = Psi%Mask;
+        #ifdef DEBUG2
+           double end_stepz2 = omp_get_wtime();
+           std::cout<<"[DEBUG2] StepZ_2 exectime: "<<(end_stepz2-start_stepz2)*1000<<" ms\n";
+        #endif 
 
+	#ifdef DEBUG2
+           double start_mask = omp_get_wtime();
+        #endif
+        Psi = Psi%Mask;
+        #ifdef DEBUG2
+           double end_mask = omp_get_wtime();
+	   std::cout<<"[DEBUG2] Mask execitme: "<<(end_mask-start_mask)*1000<<" ms\n";
+        #endif
+
+	#ifdef DEBUG2
+           double start_acc = omp_get_wtime();
+	#endif
         acc(i) = AcceZ(Psi,V,VecPotential(i),MagneticField(i),R,r,z);
-	//normVec(i) = Norm;
-	//enerVec(i) = Energy(Hr_dl,Hr_d,Hr_du,Hz_dl,Hz_d,Hz_du,Psi,R,r,z);
+	#ifdef DEBUG2
+  	   double end_acc = omp_get_wtime();
+	   std::cout<<"[DEBUG2] Acc exectime: "<<(end_acc-start_acc)*1000<<" ms\n";
+	#endif
+
         //PsiOld = PsiR2/sqrt(Norm);
-        //std::cout<<"Step: "<<i<<" Norm: "<<Norm<<" Mag: "<<MagneticField(i)<<""<<" Acc: "<<acc(i)<<" Energy: "<<Energy(Hr_dl,Hr_d,Hr_du,Hz_dl,Hz_d,Hz_du,Psi,R,r,z)<<std::endl;
-        //std::cout<<i<<" of "<< Nt <<std::endl;
 	double end_step = omp_get_wtime();
 	if (i%Nsteps==0){
 	    std::cout<<"[DEBUG] Time from init: "<<(end_step-start)<<"\n";
@@ -523,7 +485,6 @@ int main(){
 
    std::cout <<"Simulation exectime: "<<(end-start)*1000<<std::endl;
    std::cout <<"Timestep exectime: "<<(end-start)*1000/Nt<<std::endl;
-    //std::cout<<"End:\n\tNorm: "<<Norm<<" Energy: "<<Energy(Psi,V,VecPotential(Nt-1),MagneticField(Nt-1),R,r,z)<<std::endl;
     Psi2 = arma::conv_to<arma::dmat>::from(arma::conj(Psi)%Psi);
     Psi2.save("PsiEnd1.dat",arma::raw_ascii);
     acc.save("acc1.dat",arma::raw_ascii);
@@ -533,8 +494,6 @@ int main(){
     VecPotential.save("VecPotential1.dat",arma::raw_ascii);
     ElectricField.save("ElectricField1.dat",arma::raw_ascii);
     //PsiOld.save("PsiGround.dat",arma::raw_ascii);
-    //Hr.save("Hr.dat",arma::raw_ascii);
-    //Hz.save("Hz.dat",arma::raw_ascii);
 
     return 0;
 }
