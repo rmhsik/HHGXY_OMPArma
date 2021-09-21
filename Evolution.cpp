@@ -19,7 +19,7 @@ void CoulombPotential(arma::mat &V, arma::vec &r, arma::vec &z){
     }
 }
 
-double envelope(double tmax, double t){
+double envelope_sin2(double tmax, double t){
     if (t<tmax){
         return pow(sin(M_PI*t/tmax),2);
     }
@@ -28,11 +28,30 @@ double envelope(double tmax, double t){
     }
 }
 
+double envelope_trap(double tmax, double t){
+    double w = 0.057;
+    double T = 2*M_PI/w;
+    if (t<tmax+2.0*t){
+         if (t<T){
+             return pow(sin(M_PI*t/(2.0*T)),2);
+         }
+         else if (T<t && t<tmax+T){
+             return 1.0;
+         }
+         else{
+             return pow(sin(M_PI*(t-tmax-T)/(2.0*T)+M_PI/2.0),2);
+         }
+    }
+    else{
+        return 0.0;
+    }
+}
+
 double EField(double t){
     double E0=0.067;
     double w = 0.057;
     double tmax = 4*2*M_PI/w;
-    return E0*envelope(tmax,t)*sin(w*t);
+    return E0*envelope_sin2(tmax,t)*sin(w*t);
 }
 
 double BField(double t){
@@ -40,7 +59,7 @@ double BField(double t){
     double w = 0.057;
     double tmax = 4*2*M_PI/w;
     double phi = 0.12*M_PI;
-    return B0*envelope(tmax,t)*sin(w*t+phi);
+    return B0*envelope_sin2(tmax,t)*sin(w*t+phi);
 }
 
 void Gaussian(arma::cx_mat &Psi, arma::vec &r, arma::vec &z, const double r0, const double z0, const double a ){
@@ -496,8 +515,8 @@ int main(){
     Psi2 = arma::conv_to<arma::dmat>::from(arma::conj(Psi)%Psi);
     Psi2.save("PsiEnd1.dat",arma::raw_ascii);
     acc.save("acc1.dat",arma::raw_ascii);
-    normVec.save("normVec1.dat",arma::raw_ascii);
-    enerVec.save("enerVer1.dat",arma::raw_ascii);
+    //normVec.save("normVec1.dat",arma::raw_ascii);
+    //enerVec.save("enerVer1.dat",arma::raw_ascii);
     MagneticField.save("MagneticField1.dat",arma::raw_ascii);
     VecPotential.save("VecPotential1.dat",arma::raw_ascii);
     ElectricField.save("ElectricField1.dat",arma::raw_ascii);
