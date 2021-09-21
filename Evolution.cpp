@@ -153,7 +153,9 @@ void StepR(arma::cx_mat &Mr_dl, arma::cx_mat &Mr_d, arma::cx_mat &Mr_du, arma::c
 	PsiNew.col(j) = PsiColNew;
     }
     double end = omp_get_wtime();  
-    //std::cout<<"[DEBUG] StepR exectime: "<<(end-start)*1000<<std::endl;
+    #ifdef DEBUG
+    	std::cout<<"[DEBUG] StepR exectime: "<<(end-start)*1000<<std::endl;
+    #endif
     PsiOut = PsiNew;
 
 }
@@ -186,7 +188,9 @@ void StepZ(arma::cx_mat &Mz_dl, arma::cx_mat &Mz_d, arma::cx_mat &Mz_du, arma::c
     }
 
     double end = omp_get_wtime();  
-    //std::cout<<"[DEBUG] StepZ exectime: "<<(end-start)*1000<<std::endl;
+    #ifdef DEBUG
+        std::cout<<"[DEBUG] StepZ exectime: "<<(end-start)*1000<<std::endl;
+    #endif 
     PsiOut = PsiNew;
 }
 
@@ -258,8 +262,9 @@ std::complex<double> Energy(arma::cx_mat Hr_dl, arma::cx_mat Hr_d, arma::cx_mat 
     double end = omp_get_wtime();
 
     std::complex<double> E = 2*M_PI*arma::as_scalar(arma::sum(arma::sum(R%arma::conj(Psi)%(PsiNewR+PsiNewZ)*dr,0)*dz,1));
-   
-    //std::cout<<"[DEBUG] Energy exectime: "<<(end-start)*1000<<"\n";
+    #ifdef DEBUG 
+       std::cout<<"[DEBUG] Energy exectime: "<<(end-start)*1000<<"\n";
+    #endif
     return E;
 }
 
@@ -349,6 +354,7 @@ int main(){
     double tmax = 4.0*2.0*M_PI/w;
     double dt = 0.02;
     int Nt = (tmax-t0)/dt;
+    int Nsteps = 10;
 
     std::cout<<"Parameters:\n";
     std::cout<<"-------------\n";
@@ -364,7 +370,8 @@ int main(){
     std::cout<<"Nt: "<<Nt<<std::endl;
     std::cout<<"dt: "<<dt<<std::endl;
 
-    std::complex<double> Norm;
+    std::complex<double> norm;
+    std::complex<double> energy;
 
     arma::dmat t = arma::linspace(t0,tmax,Nt);
     arma::dmat ElectricField = arma::colvec(Nt,arma::fill::zeros);
@@ -384,8 +391,8 @@ int main(){
     arma::cx_mat Mask(Nr,Nz,arma::fill::zeros);
     arma::dmat R(Nr,Nz,arma::fill::zeros);
     arma::cx_colvec acc(Nt,arma::fill::zeros);
-    arma::cx_colvec normVec(Nt,arma::fill::zeros);
-    arma::cx_colvec enerVec(Nt,arma::fill::zeros);
+    arma::cx_colvec normVec(Nt/Nsteps,arma::fill::zeros);
+    arma::cx_colvec enerVec(Nt/Nsteps,arma::fill::zeros);
 
     arma::cx_mat Hr_dl(Nr,Nz,arma::fill::zeros);
     arma::cx_mat Hr_d(Nr,Nz,arma::fill::zeros);
@@ -452,8 +459,8 @@ int main(){
     std::cout<<"MaskR\n";
     //MaskZ.save("MaskZ.dat",arma::raw_ascii);
     //MaskR.save("MaskR.dat",arma::raw_ascii);
-    Norm = 2*M_PI*arma::as_scalar(arma::sum(arma::sum(R%arma::conj(Psi)%Psi*dr,0)*dz,1));
-    std::cout<<"Norm: "<<Norm<<" Energy: "<<Energy(Hr_dl,Hr_d,Hr_du,Hz_dl,Hz_d,Hz_du,Psi,R,r,z)<<std::endl;
+    norm = 2*M_PI*arma::as_scalar(arma::sum(arma::sum(R%arma::conj(Psi)%Psi*dr,0)*dz,1));
+    std::cout<<"Norm: "<<norm<<" Energy: "<<Energy(Hr_dl,Hr_d,Hr_du,Hz_dl,Hz_d,Hz_du,Psi,R,r,z)<<std::endl;
     Mask = MaskZ%MaskR;
     double start = omp_get_wtime();
     for(int i=0;i<Nt;i++){
@@ -496,7 +503,6 @@ int main(){
         StepZ(Mz_dl,Mz_d,Mz_du,Mpz_dl,Mpz_d,Mpz_du,PsiR,Psi,Nr,Nz);
         Psi = Psi%Mask;
 
-        //Norm = 2*M_PI*arma::as_scalar(arma::sum(arma::sum(R%arma::conj(Psi)%Psi*dr,0)*dz,1));
         acc(i) = AcceZ(Psi,V,VecPotential(i),MagneticField(i),R,r,z);
 	//normVec(i) = Norm;
 	//enerVec(i) = Energy(Hr_dl,Hr_d,Hr_du,Hz_dl,Hz_d,Hz_du,Psi,R,r,z);
@@ -504,13 +510,19 @@ int main(){
         //std::cout<<"Step: "<<i<<" Norm: "<<Norm<<" Mag: "<<MagneticField(i)<<""<<" Acc: "<<acc(i)<<" Energy: "<<Energy(Hr_dl,Hr_d,Hr_du,Hz_dl,Hz_d,Hz_du,Psi,R,r,z)<<std::endl;
         //std::cout<<i<<" of "<< Nt <<std::endl;
 	double end_step = omp_get_wtime();
-	if (i%10==0){
-	std::cout<<"[DEBUG] Step exectime: "<<(end_step-start_step)*1000<<"\n";}
+	if (i%Nsteps==0){
+	    std::cout<<"[DEBUG] Time from init: "<<(end_step-start)<<"\n";
+            norm = 2*M_PI*arma::as_scalar(arma::sum(arma::sum(R%arma::conj(Psi)%Psi*dr,0)*dz,1));
+            energy = Energy(Hr_dl,Hr_d,Hr_du,Hz_dl,Hz_d,Hz_du,Psi,R,r,z);
+            normVec(i%Nsteps) = norm;
+            enerVec(i%Nsteps) = energy;
+  	    std::cout<<"Step: "<<i<<" Norm: "<<norm<<" Energy "<< energy<<"\n\n";
+        }
     }
     double end = omp_get_wtime();
 
-   std::cout <<"[DEBUG] Simulation exectime: "<<(end-start)*1000<<std::endl;
-   std::cout <<"[DEBUG] Timestep exectime: "<<(end-start)*1000/Nt<<std::endl;
+   std::cout <<"Simulation exectime: "<<(end-start)*1000<<std::endl;
+   std::cout <<"Timestep exectime: "<<(end-start)*1000/Nt<<std::endl;
     //std::cout<<"End:\n\tNorm: "<<Norm<<" Energy: "<<Energy(Psi,V,VecPotential(Nt-1),MagneticField(Nt-1),R,r,z)<<std::endl;
     Psi2 = arma::conv_to<arma::dmat>::from(arma::conj(Psi)%Psi);
     Psi2.save("PsiEnd1.dat",arma::raw_ascii);

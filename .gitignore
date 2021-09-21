@@ -1,3 +1,5 @@
 *.dat
 Evolution
 *.swp
+run.sh
+*.out
