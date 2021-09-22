@@ -1,5 +1,7 @@
 #include <cmath>
-#include "../include/fields.h"
+#include <iostream>
+#include "fields.h"
+#include "param.h"
 
 double envelope_sin2(double tmax, double t,double w){
     if (t<tmax){
@@ -28,19 +30,32 @@ double envelope_trap(double tmax, double t, double w){
     }
 }
 
-double EField(double t){
-    double E0=0.067;
-    double w = 0.057;
-    double tmax = 4*2*M_PI/w;
-    return E0*envelope_sin2(tmax,t,w)*sin(w*t);
+double EField(double t,parameters p){
+    double tmax = p.fieldPeriods*2*M_PI/p.w0E;
+    if (p.env==0){
+        return p.E0*envelope_sin2(tmax,t,p.w0E)*sin(p.w0E*t+p.phiE);
+    }
+    else if (p.env==1){
+        return p.E0*envelope_trap(tmax,t,p.w0E)*sin(p.w0E*t+p.phiE);
+    }
+    else{
+        std::cout<<"[ERROR] Bad envelope definition in param.cpp\n";
+        return 0.0; 
+    }
 }
 
-double BField(double t){
-    double B0=0.00;
-    double w = 0.057;
-    double tmax = 4*2*M_PI/w;
-    double phi = 0.12*M_PI;
-    return B0*envelope_sin2(tmax,t,w)*sin(w*t+phi);
+double BField(double t,parameters p){
+    double tmax = p.fieldPeriods*2*M_PI/p.w0B;
+    if (p.env==0){
+        return p.B0*envelope_sin2(tmax,t,p.w0B)*sin(p.w0B*t+p.phiB);
+    }
+    else if (p.env==1){
+        return p.B0*envelope_trap(tmax,t,p.w0B)*sin(p.w0B*t+p.phiB);
+    }
+    else{
+        std::cout<<"[ERROR] Bad envelope definition in param.cpp\n";
+        return 0.0;
+    }
 }
 
 

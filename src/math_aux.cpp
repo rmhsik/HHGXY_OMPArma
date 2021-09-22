@@ -1,6 +1,6 @@
 #include <cmath>
-#include "../include/math_aux.h"
-
+#include "math_aux.h"
+#include "param.h"
 void Gaussian(arma::cx_mat &Psi, arma::vec &r, arma::vec &z, const double r0, const double z0, const double a ){
     for(int i=0;i<Psi.n_rows;i++){
         for(int j=0;j<Psi.n_cols;j++){
@@ -204,7 +204,7 @@ void tdmaSolver(arma::cx_mat &H, arma::cx_colvec &Psi,
     }
 }
 
-double intSimpson(double (*func)(double), double from, double to, int n){
+double intSimpson(double (*func)(double,parameters), double from, double to, int n, parameters p){
     // https://rosettacode.org/wiki/Numerical_integration#C
     
     double h = (to - from) / n;
@@ -215,10 +215,10 @@ double intSimpson(double (*func)(double), double from, double to, int n){
     double x;
  
     for(i = 0;i < n;i++)
-        sum1 += func(from + h * i + h / 2.0);
+        sum1 += func(from + h * i + h / 2.0,p);
  
     for(i = 1;i < n;i++)
-        sum2 += func(from + h * i);
+        sum2 += func(from + h * i,p);
  
-    return h / 6.0 * (func(from) + func(to) + 4.0 * sum1 + 2.0 * sum2);
+    return h / 6.0 * (func(from,p) + func(to,p) + 4.0 * sum1 + 2.0 * sum2);
 }

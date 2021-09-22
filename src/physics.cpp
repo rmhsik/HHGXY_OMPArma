@@ -1,7 +1,7 @@
 #include <omp.h>
 #include <cmath>
-#include "../include/physics.h"
-#include "../include/math_aux.h"
+#include "physics.h"
+#include "math_aux.h"
 
 void CoulombPotential(arma::mat &V, arma::vec &r, arma::vec &z){
     for(int i=0;i<V.n_rows;i++){

@@ -2,7 +2,7 @@
 #define MATH_AUX_H
 #include <complex>
 #include <armadillo>
-
+typedef struct parameters parameters;
 
 void Gaussian(arma::cx_mat &Psi, arma::vec &r, arma::vec &z, const double r0, const double z0, const double a );
 void derivativeZ(arma::dmat &U, arma::dmat z, arma::dmat &DU);
@@ -17,5 +17,5 @@ void tridotBatched(std::complex<double> **a, std::complex<double> **b, std::comp
 void tridotBatchedZ(arma::cx_mat &a, arma::cx_mat &b, arma::cx_mat &c, arma::cx_mat &Psi, arma::cx_mat &PsiOut, const int N, const int m, const int id);
 void tridotBatchedR(arma::cx_mat &a, arma::cx_mat &b, arma::cx_mat &c, arma::cx_mat &Psi, arma::cx_mat &PsiOut, const int N, const int m, const int id);
 void tridot(arma::cx_mat &H, arma::cx_colvec &Psi, arma::cx_colvec &Psiout, const int N);
-double intSimpson(double (*func)(double), double from, double to, int n);
+double intSimpson(double (*func)(double,parameters), double from, double to, int n, parameters p);
 #endif
