@@ -116,9 +116,9 @@ int main(){
     for(int i = 0; i<p.Nr;i++){
         R.row(i) = r(i)*arma::ones<arma::rowvec>(p.Nz);
     }
-    //R.save("R.dat",arma::raw_ascii);
-    //r.save("r.dat",arma::raw_ascii);
-    //z.save("z.dat",arma::raw_ascii);
+    //R.save("results/R.dat",arma::raw_ascii);
+    //r.save("results/r.dat",arma::raw_ascii);
+    //z.save("results/z.dat",arma::raw_ascii);
 
 
     for(int i=0; i<p.Nt;i++){
@@ -133,19 +133,19 @@ int main(){
     CoulombPotential(V,r,z);
     Psi.load("PsiGround_120_120.dat",arma::raw_ascii);
 
-    //V.save("Coulomb.dat",arma::raw_ascii);
+    //V.save("results/Coulomb.dat",arma::raw_ascii);
     Psi2  = arma::conv_to<arma::dmat>::from(arma::conj(Psi)%Psi);
-    //Psi2.save("PsiProb.dat",arma::raw_ascii);
+    //Psi2.save("results/PsiProb.dat",arma::raw_ascii);
 
     //PsiOld = Psi;
 
     derivativeZ(V,z,dV);
-    //dV.save("dV.dat",arma::raw_ascii);
+    //dV.save("results/dV.dat",arma::raw_ascii);
 
     maskZ(MaskZ,r,z,12.0,1.0);
     maskR(MaskR,r,z,10.0,1.0);
-    //MaskZ.save("MaskZ.dat",arma::raw_ascii);
-    //MaskR.save("MaskR.dat",arma::raw_ascii);
+    //MaskZ.save("results/MaskZ.dat",arma::raw_ascii);
+    //MaskR.save("results/MaskR.dat",arma::raw_ascii);
     norm = 2.0*M_PI*arma::as_scalar(arma::sum(arma::sum(R%arma::conj(Psi)%Psi*p.dr,0)*p.dz,1));
     
     #ifdef TEXTOUTPUT
@@ -291,14 +291,14 @@ int main(){
     #endif
 
     Psi2 = arma::conv_to<arma::dmat>::from(arma::conj(Psi)%Psi);
-    Psi2.save("PsiEnd1.dat",arma::raw_ascii);
-    acc.save("acc1.dat",arma::raw_ascii);
-    //normVec.save("normVec1.dat",arma::raw_ascii);
-    //enerVec.save("enerVer1.dat",arma::raw_ascii);
-    MagneticField.save("MagneticField1.dat",arma::raw_ascii);
-    VecPotential.save("VecPotential1.dat",arma::raw_ascii);
-    ElectricField.save("ElectricField1.dat",arma::raw_ascii);
-    //PsiOld.save("PsiGround.dat",arma::raw_ascii);
+    Psi2.save("results/PsiEnd.dat",arma::raw_ascii);
+    acc.save("results/acc.dat",arma::raw_ascii);
+    //normVec.save("results/normVec.dat",arma::raw_ascii);
+    //enerVec.save("results/enerVer.dat",arma::raw_ascii);
+    MagneticField.save("results/MagneticField.dat",arma::raw_ascii);
+    VecPotential.save("results/VecPotential.dat",arma::raw_ascii);
+    ElectricField.save("results/ElectricField.dat",arma::raw_ascii);
+    //PsiOld.save("results/PsiGround.dat",arma::raw_ascii);
 
     #ifdef TEXTOUTPUT
     outfile.close();

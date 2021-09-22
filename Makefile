@@ -10,11 +10,15 @@ SRC_EVOLUTION = $(EVOLUTION) $(SRC)
 INCLUDE = ./include/
 
 Evolution_l: $(SRC_EVOLUTION)
+	mkdir -p results
 	$(CC) $(SRC_EVOLUTION) -I$(INCLUDE) $(CFLAGS_local) -o Evolution
 Evolution_c: $(SRC_EVOLUTION)
+	mkdir -p results
 	$(CC) $(SRC_EVOLUTION) -I$(INCLUDE) $(CFLAGS_cluster) -o Evolution
 ITP_l: $(SRC_ITP)
+	mkdir -p results
 	$(CC) $(SRC_ITP) -I$(INCLUDE) $(CFLAGS_local) -o ITP
 ITP_c: $(SRC_ITP)
+	mkdir -p results
 	$(CC) $(SRC_ITP) -I$(INCLUDE) $(CFLAGS_cluster) -o ITP
 
