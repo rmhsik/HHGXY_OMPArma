@@ -12,7 +12,7 @@ double envelope_sin2(double tmax, double t,double w){
 
 double envelope_trap(double tmax, double t, double w){
     double T = 2*M_PI/w;
-    if (t<tmax+2.0*t){
+    if (t<tmax+2.0*T){
          if (t<T){
              return pow(sin(M_PI*t/(2.0*T)),2);
          }
