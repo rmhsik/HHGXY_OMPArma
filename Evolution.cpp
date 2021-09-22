@@ -20,7 +20,7 @@ void CoulombPotential(arma::mat &V, arma::vec &r, arma::vec &z){
     }
 }
 
-double envelope_sin2(double tmax, double t){
+double envelope_sin2(double tmax, double t,double w){
     if (t<tmax){
         return pow(sin(M_PI*t/tmax),2);
     }
@@ -29,8 +29,7 @@ double envelope_sin2(double tmax, double t){
     }
 }
 
-double envelope_trap(double tmax, double t){
-    double w = 0.057;
+double envelope_trap(double tmax, double t, double w){
     double T = 2*M_PI/w;
     if (t<tmax+2.0*t){
          if (t<T){
@@ -52,7 +51,7 @@ double EField(double t){
     double E0=0.067;
     double w = 0.057;
     double tmax = 4*2*M_PI/w;
-    return E0*envelope_sin2(tmax,t)*sin(w*t);
+    return E0*envelope_sin2(tmax,t,w)*sin(w*t);
 }
 
 double BField(double t){
@@ -60,7 +59,7 @@ double BField(double t){
     double w = 0.057;
     double tmax = 4*2*M_PI/w;
     double phi = 0.12*M_PI;
-    return B0*envelope_sin2(tmax,t)*sin(w*t+phi);
+    return B0*envelope_sin2(tmax,t,w)*sin(w*t+phi);
 }
 
 void Gaussian(arma::cx_mat &Psi, arma::vec &r, arma::vec &z, const double r0, const double z0, const double a ){
@@ -409,6 +408,7 @@ int main(){
     //MaskZ.save("MaskZ.dat",arma::raw_ascii);
     //MaskR.save("MaskR.dat",arma::raw_ascii);
     norm = 2*M_PI*arma::as_scalar(arma::sum(arma::sum(R%arma::conj(Psi)%Psi*dr,0)*dz,1));
+    
     #ifdef TEXTOUTPUT
     outfile<<"Norm: "<<norm<<" Energy: "<<Energy(Hr_dl,Hr_d,Hr_du,Hz_dl,Hz_d,Hz_du,Psi,R,r,z)<<std::endl;
     #else
@@ -417,52 +417,63 @@ int main(){
     Mask = MaskZ%MaskR;
     double start = omp_get_wtime();
     for(int i=0;i<Nt;i++){
-	double start_step = omp_get_wtime();
-	#pragma omp parallel for
-	for (int j=0; j<z.n_elem;j++){
-	    arma::cx_mat Hr(Nr,3,arma::fill::zeros);
+	
+        double start_step = omp_get_wtime();
+
+        #pragma omp parallel for
+        for (int j=0; j<z.n_elem;j++){
+            arma::cx_mat Hr(Nr,3,arma::fill::zeros);
             HamR(Hr,V, MagneticField(i),r,dr,R,j);
             Hr_dl.col(j) = Hr.col(0);
-	    Hr_d.col(j) = Hr.col(1);
-	    Hr_du.col(j) = Hr.col(2);
-	    Mr_dl.col(j) = -std::complex<double>(0.0,1.0)*Hr.col(0)*dt/2.0;
-	    Mr_d.col(j) = 1.0 - std::complex<double>(0.0,1.0)*Hr.col(1)*dt/2.0;
-	    Mr_du.col(j) = -std::complex<double>(0.0,1.0)*Hr.col(2)*dt/2.0;
-	    Mpr_dl.col(j) = std::complex<double>(0.0,1.0)*Hr.col(0)*dt/2.0;
-	    Mpr_d.col(j) = 1.0 + std::complex<double>(0.0,1.0)*Hr.col(1)*dt/2.0;
-	    Mpr_du.col(j) = std::complex<double>(0.0,1.0)*Hr.col(2)*dt/2.0;
+            Hr_d.col(j) = Hr.col(1);
+            Hr_du.col(j) = Hr.col(2);
+            Mr_dl.col(j) = -std::complex<double>(0.0,1.0)*Hr.col(0)*dt/2.0;
+            Mr_d.col(j) = 1.0 - std::complex<double>(0.0,1.0)*Hr.col(1)*dt/2.0;
+            Mr_du.col(j) = -std::complex<double>(0.0,1.0)*Hr.col(2)*dt/2.0;
+            Mpr_dl.col(j) = std::complex<double>(0.0,1.0)*Hr.col(0)*dt/2.0;
+            Mpr_d.col(j) = 1.0 + std::complex<double>(0.0,1.0)*Hr.col(1)*dt/2.0;
+            Mpr_du.col(j) = std::complex<double>(0.0,1.0)*Hr.col(2)*dt/2.0;
 
-        }
-	#pragma omp parallel for
-	for (int j=0; j<r.n_elem;j++){
-	    arma::cx_mat Hz(Nz,3,arma::fill::zeros);
+            }
+        #pragma omp parallel for
+        for (int j=0; j<r.n_elem;j++){
+            arma::cx_mat Hz(Nz,3,arma::fill::zeros);
             HamZ(Hz,V,VecPotential(i),MagneticField(i),z,dz,R,j);
             Hz_dl.col(j) = Hz.col(0);
             Hz_d.col(j) = Hz.col(1);
             Hz_du.col(j) = Hz.col(2);
-	    Mz_dl.col(j) = std::complex<double>(0.0,1.0)*Hz.col(0)*dt/4.0;
-	    Mz_d.col(j) = 1.0 + std::complex<double>(0.0,1.0)*Hz.col(1)*dt/4.0;
-	    Mz_du.col(j) = std::complex<double>(0.0,1.0)*Hz.col(2)*dt/4.0;
-	    Mpz_dl.col(j) = -std::complex<double>(0.0,1.0)*Hz.col(0)*dt/4.0;
-	    Mpz_d.col(j) = 1.0 - std::complex<double>(0.0,1.0)*Hz.col(1)*dt/4.0;
-	    Mpz_du.col(j) = -std::complex<double>(0.0,1.0)*Hz.col(2)*dt/4.0;
-        }
-	#ifdef DEBUG2
-           double start_stepz1 = omp_get_wtime();
+            Mz_dl.col(j) = std::complex<double>(0.0,1.0)*Hz.col(0)*dt/4.0;
+            Mz_d.col(j) = 1.0 + std::complex<double>(0.0,1.0)*Hz.col(1)*dt/4.0;
+            Mz_du.col(j) = std::complex<double>(0.0,1.0)*Hz.col(2)*dt/4.0;
+            Mpz_dl.col(j) = -std::complex<double>(0.0,1.0)*Hz.col(0)*dt/4.0;
+            Mpz_d.col(j) = 1.0 - std::complex<double>(0.0,1.0)*Hz.col(1)*dt/4.0;
+            Mpz_du.col(j) = -std::complex<double>(0.0,1.0)*Hz.col(2)*dt/4.0;
+            }
+        #ifdef DEBUG2
+            double end_matrices = omp_get_wtime();
+            #ifdef TEXTOUTPUT
+            outfile<<"[DEBUG2] Setup matrices exectime: "<<(end_matrices - start_step)*1000<< " ms\n";
+            #else
+            std::cout<<"[DEBUG2] Setup matrices exectime: "<<(end_matrices - start_step)*1000<< " ms\n";
+            #endif
+        #endif
+	    #ifdef DEBUG2
+            double start_stepz1 = omp_get_wtime();
         #endif 
+    
         StepZ(Mz_dl,Mz_d,Mz_du,Mpz_dl,Mpz_d,Mpz_du,Psi,PsiZ,Nr,Nz);       
         #ifdef DEBUG2
            double end_stepz1 = omp_get_wtime();
            #ifdef TEXTOUTPUT
-	   outfile<<"[DEBUG2] StepZ_1 exectime: "<<(end_stepz1-start_stepz1)*1000<<" ms\n";
+	       outfile<<"[DEBUG2] StepZ_1 exectime: "<<(end_stepz1-start_stepz1)*1000<<" ms\n";
            #else
-	   std::cout<<"[DEBUG2] StepZ_1 exectime: "<<(end_stepz1-start_stepz1)*1000<<" ms\n";
+	       std::cout<<"[DEBUG2] StepZ_1 exectime: "<<(end_stepz1-start_stepz1)*1000<<" ms\n";
            #endif
         #endif         
 	
- 	#ifdef DEBUG2
-	   double start_stepr = omp_get_wtime();
-	#endif
+ 	    #ifdef DEBUG2
+	        double start_stepr = omp_get_wtime();
+	    #endif
         StepR(Mr_dl,Mr_d,Mr_du,Mpr_dl,Mpr_d,Mpr_du,PsiZ,PsiR,Nr,Nz);
         #ifdef DEBUG2
            double end_stepr = omp_get_wtime();
@@ -475,61 +486,61 @@ int main(){
        
         #ifdef DEBUG2
            double start_stepz2 = omp_get_wtime();
-	#endif
+	    #endif
         StepZ(Mz_dl,Mz_d,Mz_du,Mpz_dl,Mpz_d,Mpz_du,PsiR,Psi,Nr,Nz);
         #ifdef DEBUG2
            double end_stepz2 = omp_get_wtime();
-           
            #ifdef TEXTOUTPUT
-	   outfile<<"[DEBUG2] StepZ_2 exectime: "<<(end_stepz2-start_stepz2)*1000<<" ms\n";
+	       outfile<<"[DEBUG2] StepZ_2 exectime: "<<(end_stepz2-start_stepz2)*1000<<" ms\n";
            #else
-	   std::cout<<"[DEBUG2] StepZ_2 exectime: "<<(end_stepz2-start_stepz2)*1000<<" ms\n";
+    	   std::cout<<"[DEBUG2] StepZ_2 exectime: "<<(end_stepz2-start_stepz2)*1000<<" ms\n";
            #endif
         #endif 
 
-	#ifdef DEBUG2
+	    #ifdef DEBUG2
            double start_mask = omp_get_wtime();
         #endif
         Psi = Psi%Mask;
         #ifdef DEBUG2
            double end_mask = omp_get_wtime();
            #ifdef TEXTOUTPUT 
-	   outfile<<"[DEBUG2] Mask execitme: "<<(end_mask-start_mask)*1000<<" ms\n";
+	       outfile<<"[DEBUG2] Mask execitme: "<<(end_mask-start_mask)*1000<<" ms\n";
            #else
-	   std::cout<<"[DEBUG2] Mask execitme: "<<(end_mask-start_mask)*1000<<" ms\n";
+	       std::cout<<"[DEBUG2] Mask execitme: "<<(end_mask-start_mask)*1000<<" ms\n";
            #endif
         #endif
 
-	#ifdef DEBUG2
+	    #ifdef DEBUG2
            double start_acc = omp_get_wtime();
-	#endif
+	    #endif
         acc(i) = AcceZ(Psi,V,VecPotential(i),MagneticField(i),R,r,z);
-	#ifdef DEBUG2
-  	   double end_acc = omp_get_wtime();
-	   #ifdef TEXTOUTPUT
-	   outfile<<"[DEBUG2] Acc exectime: "<<(end_acc-start_acc)*1000<<" ms\n";
-           #else
-	   std::cout<<"[DEBUG2] Acc exectime: "<<(end_acc-start_acc)*1000<<" ms\n";
-           #endif
-	#endif
+	    #ifdef DEBUG2
+  	        double end_acc = omp_get_wtime();
+	        #ifdef TEXTOUTPUT
+	        outfile<<"[DEBUG2] Acc exectime: "<<(end_acc-start_acc)*1000<<" ms\n";
+            #else
+	        std::cout<<"[DEBUG2] Acc exectime: "<<(end_acc-start_acc)*1000<<" ms\n";
+            #endif
+    	#endif
 
         //PsiOld = PsiR2/sqrt(Norm);
-	double end_step = omp_get_wtime();
-	if (i%Nsteps==0){
+	    double end_step = omp_get_wtime();
+	    if (i%Nsteps==0){
             norm = 2*M_PI*arma::as_scalar(arma::sum(arma::sum(R%arma::conj(Psi)%Psi*dr,0)*dz,1));
             energy = Energy(Hr_dl,Hr_d,Hr_du,Hz_dl,Hz_d,Hz_du,Psi,R,r,z);
             normVec(i%Nsteps) = norm;
             enerVec(i%Nsteps) = energy;
  	    
             #ifdef TEXTOUTPUT
-	    outfile<<"[DEBUG] Time from init: "<<(end_step-start)<<"\n";
-  	    outfile<<"Step: "<<i<<" Norm: "<<norm<<" Energy "<< energy<<"\n\n";
+	            outfile<<"[DEBUG] Time from init: "<<(end_step-start)<<"\n";
+          	    outfile<<"Step: "<<i<<" Norm: "<<norm<<" Energy "<< energy<<"\n\n";
             #else
-	    std::cout<<"[DEBUG] Time from init: "<<(end_step-start)<<"\n";
-  	    std::cout<<"Step: "<<i<<" Norm: "<<norm<<" Energy "<< energy<<"\n\n";
+	            std::cout<<"[DEBUG] Time from init: "<<(end_step-start)<<"\n";
+          	    std::cout<<"Step: "<<i<<" Norm: "<<norm<<" Energy "<< energy<<"\n\n";
             #endif
         }
     }
+
     double end = omp_get_wtime();
     
     #ifdef TEXTOUTPUT 
