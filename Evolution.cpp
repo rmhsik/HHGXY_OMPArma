@@ -297,7 +297,7 @@ int main(){
     double tmax = 4.0*2.0*M_PI/w;
     double dt = 0.02;
     int Nt = (tmax-t0)/dt;
-    int Nsteps = 10;
+    int Nsteps = 50;
     
     #ifdef TEXTOUTPUT
     outfile<<"Parameters:\n";
