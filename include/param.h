@@ -6,8 +6,8 @@
 
     struct parameters{
         double rmin     = 0.0;
-        double rmax     = 100.0;
-        int Nr          = 1000;
+        double rmax     = 150.0;
+        int Nr          = 1500;
         double dr       = (rmax-rmin)/Nr;
         double zmin     = -120.0;
         double zmax     =  120.0;

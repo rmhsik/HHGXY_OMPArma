@@ -232,9 +232,9 @@ int main(){
         std::cout<<i<<": ";
         std::cout<<energy<<" "<<norm<<std::endl;
     }
-    Psi2  = arma::conv_to<arma::dmat>::from(arma::conj(PsiOld)%PsiOld);
+    Psi2  = arma::conv_to<arma::dmat>::from(arma::conj(Psi)%Psi);
     Psi2.save("results/PsiGround2.dat",arma::raw_ascii);
-    PsiOld.save("results/PsiGround.dat",arma::raw_ascii);
+    Psi.save("results/PsiGround.dat",arma::raw_ascii);
     //Hr.save("Hr.dat",arma::raw_ascii);
     //Hz.save("Hz.dat",arma::raw_ascii);
     return 0;
