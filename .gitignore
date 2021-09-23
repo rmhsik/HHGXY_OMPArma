@@ -1,6 +1,7 @@
 *.dat
 Evolution
 Evolution2
+ITP
 *.swp
 run.sh
 *.out

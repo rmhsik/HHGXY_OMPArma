@@ -29,6 +29,8 @@
         int Nsteps      = 50;
 	    double tmax;	
         int Nt;
+        double dt_ITP   = 0.001;
+        int Nt_ITP      = 300;
         
         parameters(){
             if(w0B<=w0E){

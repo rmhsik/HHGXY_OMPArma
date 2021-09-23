@@ -8,7 +8,13 @@ void Gaussian(arma::cx_mat &Psi, arma::vec &r, arma::vec &z, const double r0, co
         }
     }
 }
-
+void Exponential(arma::cx_mat &Psi, arma::vec &r, arma::vec &z, const double r0, const double z0, const double a ){
+    for(int i=0;i<Psi.n_rows;i++){
+        for(int j=0;j<Psi.n_cols;j++){
+            Psi(i,j) = exp(-sqrt(pow(r(i)-r0,2)+pow(z(j)-z0,2)));
+        }
+    }
+}
 void derivativeZ(arma::dmat &U, arma::dmat z, arma::dmat &DU){
     int Nz = z.n_elem;
     double dz = (z(z.n_elem-1)-z(0))/(double)Nz;
