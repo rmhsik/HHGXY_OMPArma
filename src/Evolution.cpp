@@ -18,7 +18,7 @@ int main(){
 
     #ifdef TEXTOUTPUT
     std::ofstream outfile;
-    outfile.open("output.txt");
+    outfile.open("output_Evolution.txt");
     #endif
 /*
     double rmin = p.rmin;

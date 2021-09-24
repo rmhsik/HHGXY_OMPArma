@@ -5,4 +5,4 @@
 #SBATCH --nodes=1
 #SBATCH --nodelist=nodo07
 #SBATCH --ntasks=8
-srun time ./ITP && time ./Evolution
+srun ./ITP && ./Evolution
