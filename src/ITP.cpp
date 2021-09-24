@@ -9,7 +9,6 @@
 #include "param.h"
 #define ARMA_NO_DEBUG
 
-#define OMP_NUM_THREADS 4
 int main(){
     omp_set_num_threads(OMP_NUM_THREADS);
     parameters p;

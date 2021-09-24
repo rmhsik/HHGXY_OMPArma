@@ -2,6 +2,8 @@
 #define PARAM_H
 #include <cmath>
 #include <iostream>
+
+#define OMP_NUM_THREADS 4
     const double c = 137.04;
 
     struct parameters{
