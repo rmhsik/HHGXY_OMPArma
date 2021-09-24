@@ -88,6 +88,7 @@ int main(){
     arma::cx_mat Mask(p.Nr,p.Nz,arma::fill::zeros);
     arma::dmat R(p.Nr,p.Nz,arma::fill::zeros);
     arma::cx_colvec acc(p.Nt,arma::fill::zeros);
+    arma::cx_colvec accMask(p.Nt,arma::fill::zeros);
     arma::cx_colvec normVec(p.Nt/p.Nsteps,arma::fill::zeros);
     arma::cx_colvec enerVec(p.Nt/p.Nsteps,arma::fill::zeros);
 
@@ -131,19 +132,16 @@ int main(){
     }
 
     CoulombPotential(V,r,z);
-    Psi.load("results/PsiGround.dat",arma::raw_ascii);
-
     //V.save("results/Coulomb.dat",arma::raw_ascii);
+    Psi.load("results/PsiGround.dat",arma::raw_ascii);
     Psi2  = arma::conv_to<arma::dmat>::from(arma::conj(Psi)%Psi);
     //Psi2.save("results/PsiProb.dat",arma::raw_ascii);
-
-    //PsiOld = Psi;
-
     derivativeZ(V,z,dV);
     //dV.save("results/dV.dat",arma::raw_ascii);
-
     maskZ(MaskZ,r,z,12.0,1.0);
     maskR(MaskR,r,z,10.0,1.0);
+    accelerationMask(accMask, t, p);
+    accMask.save("results/accMask.dat",arma::raw_ascii);
     //MaskZ.save("results/MaskZ.dat",arma::raw_ascii);
     //MaskR.save("results/MaskR.dat",arma::raw_ascii);
     norm = 2.0*M_PI*arma::as_scalar(arma::sum(arma::sum(R%arma::conj(Psi)%Psi*p.dr,0)*p.dz,1));
@@ -279,7 +277,7 @@ int main(){
             #endif
         }
     }
-
+    acc = acc%accMask;
     double end = omp_get_wtime();
     
     #ifdef TEXTOUTPUT 

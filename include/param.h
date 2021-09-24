@@ -5,7 +5,9 @@
     const double c = 137.04;
 
     struct parameters{
-        double rmin     = 0.0;
+        
+	// GRID
+	double rmin     = 0.0;
         double rmax     = 150.0;
         int Nr          = 1500;
         double dr       = (rmax-rmin)/Nr;
@@ -14,25 +16,30 @@
         int Nz          = 2400; 
         double dz       = (zmax-zmin)/Nz;
         
+  	// ELECTROMAGNETIC FIELDS
         double w0E      = 0.057;
-        double w0B      = 0.051;
+        double w0B      = 0.057;
         double phiE     = 0.0;
         double phiB     = -0.25*M_PI;
         double E0       = 0.067;
         double B0       = 0.12;
-        int env         = 1; //0 -> sin2; 1 -> trap 
+        int env         = 0; //0 -> sin2; 1 -> trap 
         
+	// TIME (FIELD AND SIMULATION)
         double t0       = 0.0;
         double dt       = 0.02;
-        double simPeriods   = 6.0;
+        double simPeriods   = 4.0;
         double fieldPeriods = 4.0;
         int Nsteps      = 50;
-	    double tmax;	
+	double tmax;	
         int Nt;
         double dt_ITP   = 0.001;
         int Nt_ITP      = 300;
         
-        parameters(){
+	//ACCELERATION MASK
+	double fwhm_accMask = 0.001;
+        
+	parameters(){
             if(w0B<=w0E){
                 tmax = simPeriods*2.0*M_PI/w0B;
             }

@@ -2,6 +2,7 @@
 #include <cmath>
 #include "physics.h"
 #include "math_aux.h"
+#include "param.h"
 
 void CoulombPotential(arma::mat &V, arma::vec &r, arma::vec &z){
     for(int i=0;i<V.n_rows;i++){
@@ -196,3 +197,22 @@ void maskR(arma::cx_mat &Mask, arma::vec &r, arma::vec &z, double rb, double gam
     }
 }
 
+void accelerationMask(arma::cx_colvec &accMask, arma::dmat &t, parameters p){
+    double period = 2*M_PI/p.w0E;
+    double start_acc_mask;
+    if (p.env==0){
+        std::cout<<"Here\n";
+        start_acc_mask = p.fieldPeriods*period;
+    }
+    else if(p.env==1){
+        std::cout<<"Here 2\n";
+        start_acc_mask = p.fieldPeriods*period + 2.0*period;
+    }
+    double fwhm = p.fwhm_accMask;
+    for (int i = 0; i<accMask.n_elem; i++){
+        accMask(i) = 1.0;
+        if (t(i)>start_acc_mask){
+            accMask(i) = exp(-pow((t(i)-start_acc_mask),2)*fwhm);
+        }
+    }
+}
