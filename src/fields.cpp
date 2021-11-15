@@ -30,13 +30,13 @@ double envelope_trap(double tmax, double t, double w){
     }
 }
 
-double EField(double t,parameters p){
-    double tmax = p.fieldPeriods*2*M_PI/p.w0E;
+double EFieldZ(double t,parameters p){
+    double tmax = p.fieldPeriods*2*M_PI/p.w0Ez;
     if (p.env==0){
-        return p.E0*envelope_sin2(tmax,t,p.w0E)*sin(p.w0E*t+p.phiE);
+        return p.E0z*envelope_sin2(tmax,t,p.w0Ez)*sin(p.w0Ez*t+p.phiEz);
     }
     else if (p.env==1){
-        return p.E0*envelope_trap(tmax,t,p.w0E)*sin(p.w0E*t+p.phiE);
+        return p.E0z*envelope_trap(tmax,t,p.w0Ez)*sin(p.w0Ez*t+p.phiEz);
     }
     else{
         std::cout<<"[ERROR] Bad envelope definition in param.cpp\n";
@@ -44,13 +44,27 @@ double EField(double t,parameters p){
     }
 }
 
-double BField(double t,parameters p){
-    double tmax = p.fieldPeriods*2*M_PI/p.w0B;
+double EFieldX(double t,parameters p){
+    double tmax = p.fieldPeriods*2*M_PI/p.w0Ex;
     if (p.env==0){
-        return p.B0*envelope_sin2(tmax,t,p.w0B)*sin(p.w0B*t+p.phiB);
+        return p.E0x*envelope_sin2(tmax,t,p.w0Ex)*sin(p.w0Ex*t+p.phiEx);
     }
     else if (p.env==1){
-        return p.B0*envelope_trap(tmax,t,p.w0B)*sin(p.w0B*t+p.phiB);
+        return p.E0x*envelope_trap(tmax,t,p.w0Ex)*sin(p.w0Ex*t+p.phiEx);
+    }
+    else{
+        std::cout<<"[ERROR] Bad envelope definition in param.cpp\n";
+        return 0.0; 
+    }
+}
+
+double BFieldX(double t,parameters p){
+    double tmax = p.fieldPeriods*2*M_PI/p.w0Bx;
+    if (p.env==0){
+        return p.B0x*envelope_sin2(tmax,t,p.w0Bx)*sin(p.w0Bx*t+p.phiBx);
+    }
+    else if (p.env==1){
+        return p.B0x*envelope_trap(tmax,t,p.w0Bx)*sin(p.w0Bx*t+p.phiBx);
     }
     else{
         std::cout<<"[ERROR] Bad envelope definition in param.cpp\n";
@@ -58,4 +72,17 @@ double BField(double t,parameters p){
     }
 }
 
+double BFieldZ(double t,parameters p){
+    double tmax = p.fieldPeriods*2*M_PI/p.w0Bz;
+    if (p.env==0){
+        return p.B0z*envelope_sin2(tmax,t,p.w0Bz)*sin(p.w0Bz*t+p.phiBz);
+    }
+    else if (p.env==1){
+        return p.B0z*envelope_trap(tmax,t,p.w0Bz)*sin(p.w0Bz*t+p.phiBz);
+    }
+    else{
+        std::cout<<"[ERROR] Bad envelope definition in param.cpp\n";
+        return 0.0;
+    }
+}
 

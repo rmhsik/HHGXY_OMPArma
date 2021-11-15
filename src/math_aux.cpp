@@ -1,20 +1,14 @@
 #include <cmath>
 #include "math_aux.h"
 #include "param.h"
-void Gaussian(arma::cx_mat &Psi, arma::vec &r, arma::vec &z, const double r0, const double z0, const double a ){
+void Gaussian(arma::cx_mat &Psi, arma::vec &x, arma::vec &z, const double x0,const double z0, const double a ){
     for(int i=0;i<Psi.n_rows;i++){
         for(int j=0;j<Psi.n_cols;j++){
-            Psi(i,j) = exp(-pow(r(i)-r0,2)/a-pow(z(j)-z0,2)/a);
+            Psi(i,j) = exp(-pow(x(i),2)/a-pow(z(j)-z0,2)/a);
         }
     }
 }
-void Exponential(arma::cx_mat &Psi, arma::vec &r, arma::vec &z, const double r0, const double z0, const double a ){
-    for(int i=0;i<Psi.n_rows;i++){
-        for(int j=0;j<Psi.n_cols;j++){
-            Psi(i,j) = exp(-sqrt(pow(r(i)-r0,2)+pow(z(j)-z0,2)));
-        }
-    }
-}
+
 void derivativeZ(arma::dmat &U, arma::dmat z, arma::dmat &DU){
     int Nz = z.n_elem;
     double dz = (z(z.n_elem-1)-z(0))/(double)Nz;
@@ -32,6 +26,24 @@ void derivativeZ(arma::dmat &U, arma::dmat z, arma::dmat &DU){
         }
     }
 }
+void derivativeX(arma::dmat &U, arma::dmat x, arma::dmat &DU){
+    int Nx = x.n_elem;
+    double dx = (x(x.n_elem-1)-x(0))/(double)Nx;
+    
+    for(int i=0;i<U.n_cols;i++){
+        DU(0,i) = (U(1,i)-U(0,i))/dx;
+    }
+    for(int i=0;i<U.n_cols;i++){
+        DU(U.n_rows-1,i) = (U(U.n_rows-1,i)-U(U.n_rows-2,i))/dx;
+    }
+
+    for(int i=1;i<U.n_rows-1;i++){
+        for(int j=0; j<U.n_cols;j++){
+            DU(i,j) = (U(i+1,j)-U(i-1,j))/(2.0*dx);
+        }
+    }
+}
+
 
 
 void tdmaSolver(double **a ,double **b, double **c, double **d, 

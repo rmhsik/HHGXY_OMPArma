@@ -4,9 +4,9 @@
 #include <armadillo>
 typedef struct parameters parameters;
 
-void Gaussian(arma::cx_mat &Psi, arma::vec &r, arma::vec &z, const double r0, const double z0, const double a );
-void Exponential(arma::cx_mat &Psi, arma::vec &r, arma::vec &z, const double r0, const double z0, const double a );
+void Gaussian(arma::cx_mat &Psi, arma::vec &x, arma::vec &z, const double x0, const double z0, const double a );
 void derivativeZ(arma::dmat &U, arma::dmat z, arma::dmat &DU);
+void derivativeX(arma::dmat &U, arma::dmat x, arma::dmat &DU);
 void tdmaSolver(double **a ,double **b, double **c, double **d, double **out, const int N);
 void tdmaSolver(arma::cx_mat &H, arma::cx_colvec &Psi, arma::cx_colvec &Psiout, const int N);
 void tdmaSolverBatch(double **a ,double **b, double **c, double **d, double **out, const int N,const int m, const int id);

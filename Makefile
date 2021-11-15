@@ -2,8 +2,8 @@ CC = g++
 CFLAGS_local = -DTEXTOUTPUT -lm -larmadillo -llapack -lopenblas -O3 -fopenmp -ffast-math
 CFLAGS_cluster = -DTEXTOUTPUT -lm -I/home/rodrigomh/armadillo/include  -I/opt/lapack/3.9.0/lib64 -I/usr/lib64 -O3 -fopenmp -ffast-math
 
-ITP = src/ITP.cpp
-EVOLUTION = src/Evolution.cpp
+ITP = src/ITP1d.cpp
+EVOLUTION = src/Evolution1d.cpp
 SRC = src/fields.cpp src/physics.cpp src/math_aux.cpp
 SRC_ITP = $(ITP) $(SRC)
 SRC_EVOLUTION = $(EVOLUTION) $(SRC)

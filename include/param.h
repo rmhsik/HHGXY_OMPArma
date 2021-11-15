@@ -3,28 +3,34 @@
 #include <cmath>
 #include <iostream>
 
-#define OMP_NUM_THREADS 4
+#define OMP_NUM_THREADS 1
     const double c = 137.04;
 
     struct parameters{
         
 	// GRID
-	double rmin     = 0.0;
-        double rmax     = 150.0;
-        int Nr          = 1500;
-        double dr       = (rmax-rmin)/Nr;
+        double xmin     = -120.0;
+        double xmax     = 120.0;
+        int Nx          = 2400;
+        double dx       = (xmax-xmin)/Nx;
         double zmin     = -120.0;
         double zmax     =  120.0;
         int Nz          = 2400; 
         double dz       = (zmax-zmin)/Nz;
         
   	// ELECTROMAGNETIC FIELDS
-        double w0E      = 0.057;
-        double w0B      = 0.057;
-        double phiE     = 0.0;
-        double phiB     = -0.25*M_PI;
-        double E0       = 0.067;
-        double B0       = 0.12;
+        double w0Ex     = 0.057;
+        double w0Ez     = 0.057;
+        double w0Bx     = 0.057;
+        double w0Bz     = 0.057;
+        double phiEx    = 0.0;
+        double phiEz    = 0.0;
+        double phiBx    = -0.25*M_PI;
+        double phiBz    = 0.0;
+        double E0x      = 0.0;
+        double E0z      = 0.0;
+        double B0x      = 0.0;
+        double B0z      = 0.0;
         int env         = 0; //0 -> sin2; 1 -> trap 
         
 	// TIME (FIELD AND SIMULATION)
@@ -32,45 +38,51 @@
         double dt       = 0.02;
         double simPeriods   = 4.0;
         double fieldPeriods = 4.0;
-        int Nsteps      = 50;
-	double tmax;	
+        int Nsteps      = 5;
+    	double tmax;	
         int Nt;
-        double dt_ITP   = 0.001;
+        double dt_ITP   = 0.01;
         int Nt_ITP      = 300;
         
 	//ACCELERATION MASK
 	double fwhm_accMask = 0.001;
         
 	parameters(){
-            if(w0B<=w0E){
-                tmax = simPeriods*2.0*M_PI/w0B;
+            if(w0Bz<=w0Ez){
+                tmax = simPeriods*2.0*M_PI/w0Bz;
             }
             else{ 
-                tmax = simPeriods*2.0*M_PI/w0E;
+                tmax = simPeriods*2.0*M_PI/w0Ez;
             }
             Nt = (tmax-t0)/dt;
         }
         void printParameters(){
             std::cout<<"Parameters:\n";
             std::cout<<"-----------\n";
-            std::cout<<"\t rmin: "<<rmin<<std::endl;
-            std::cout<<"\t rmax: "<<rmax<<std::endl;
-            std::cout<<"\t Nr: "<<Nr<<std::endl;
-            std::cout<<"\t dr: "<<dr<<std::endl;
+            std::cout<<"\t xmin: "<<xmin<<std::endl;
+            std::cout<<"\t xmax: "<<xmax<<std::endl;
+            std::cout<<"\t Nx: "<<Nx<<std::endl;
+            std::cout<<"\t dx: "<<dx<<std::endl;
             std::cout<<"\t zmin: "<<zmin<<std::endl;
             std::cout<<"\t zmax: "<<zmax<<std::endl;
             std::cout<<"\t Nz: "<<Nz<<std::endl;
             std::cout<<"\t dz: "<<dz<<std::endl;
-            std::cout<<"\t w0E: "<<w0E<<std::endl;
-            std::cout<<"\t w0B: "<<w0B<<std::endl;
+            std::cout<<"\t w0Ex: "<<w0Ex<<std::endl;
+            std::cout<<"\t w0Ez: "<<w0Ez<<std::endl;
+            std::cout<<"\t w0Bx: "<<w0Bx<<std::endl;
+            std::cout<<"\t w0Bz: "<<w0Bz<<std::endl;
             std::cout<<"\t t0: "<<t0<<std::endl;
             std::cout<<"\t tmax: "<<tmax<<std::endl;
             std::cout<<"\t dt: "<<dt<<std::endl;           
             std::cout<<"\t Nt: "<<Nt<<std::endl;
-            std::cout<<"\t phiE: "<<phiE<<std::endl;
-            std::cout<<"\t phiB: "<<phiB<<std::endl;
-            std::cout<<"\t E0: "<<E0<<std::endl;
-            std::cout<<"\t B0: "<<B0<<std::endl;
+            std::cout<<"\t phiEx: "<<phiEx<<std::endl;
+            std::cout<<"\t phiEz: "<<phiEz<<std::endl;
+            std::cout<<"\t phiBx: "<<phiBx<<std::endl;
+            std::cout<<"\t phiBz: "<<phiBz<<std::endl;
+            std::cout<<"\t E0x: "<<E0x<<std::endl;
+            std::cout<<"\t E0z: "<<E0z<<std::endl;
+            std::cout<<"\t B0x: "<<B0x<<std::endl;
+            std::cout<<"\t B0z: "<<B0z<<std::endl;
         }
     };
 
