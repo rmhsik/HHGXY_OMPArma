@@ -14,5 +14,6 @@ std::complex<double> AcceX(arma::cx_mat &Psi, arma::dmat &V,double VecPot, arma:
 std::complex<double> AcceZ(arma::cx_mat &Psi, arma::dmat &V,double VecPot, arma::vec &x, arma::vec &z);
 void maskX(arma::cx_mat &Mask,arma::vec &x, arma::vec &z, double zb, double gamma);
 void maskZ(arma::cx_mat &Mask,arma::vec &x, arma::vec &z, double zb, double gamma);
-void accelerationMask(arma::cx_colvec &accMask, arma::dmat &t, parameters p);
+void accelerationMaskX(arma::cx_colvec &accMask, arma::dmat &t, parameters p);
+void accelerationMaskZ(arma::cx_colvec &accMask, arma::dmat &t, parameters p);
 #endif

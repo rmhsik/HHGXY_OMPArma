@@ -3,19 +3,19 @@
 #include <cmath>
 #include <iostream>
 
-#define OMP_NUM_THREADS 1
-    const double c = 137.04;
+#define OMP_NUM_THREADS 4
+const double c = 137.04;
 
-    struct parameters{
+struct parameters{
         
 	// GRID
         double xmin     = -120.0;
         double xmax     = 120.0;
-        int Nx          = 2400;
+        int Nx          = 240;
         double dx       = (xmax-xmin)/Nx;
         double zmin     = -120.0;
         double zmax     =  120.0;
-        int Nz          = 2400; 
+        int Nz          = 240; 
         double dz       = (zmax-zmin)/Nz;
         
   	// ELECTROMAGNETIC FIELDS
@@ -25,9 +25,9 @@
         double w0Bz     = 0.057;
         double phiEx    = 0.0;
         double phiEz    = 0.0;
-        double phiBx    = -0.25*M_PI;
+        double phiBx    = 0.0*M_PI;
         double phiBz    = 0.0;
-        double E0x      = 0.0;
+        double E0x      = 0.067;
         double E0z      = 0.0;
         double B0x      = 0.0;
         double B0z      = 0.0;
@@ -38,11 +38,11 @@
         double dt       = 0.02;
         double simPeriods   = 4.0;
         double fieldPeriods = 4.0;
-        int Nsteps      = 5;
+        int Nsteps      = 50;
     	double tmax;	
         int Nt;
         double dt_ITP   = 0.01;
-        int Nt_ITP      = 300;
+        int Nt_ITP      = 1000;
         
 	//ACCELERATION MASK
 	double fwhm_accMask = 0.001;

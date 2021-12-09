@@ -38,7 +38,7 @@ ITP_d: $(SRC_ITP)
 	$(CC) $(SRC_ITP) -I$(INCLUDE) $(CFLAGS_docker) -o ITP
 
 run_l:
-	./ITP && ./ Evolution
+	./ITP && ./Evolution
 
 run_c: 
 	sbatch run.sh
@@ -49,3 +49,6 @@ clean:
 	rm -rf results/
 	rm -rf ITP
 	rm -rf Evolution
+	rm -rf output_*
+	rm -rf slurm*
+
