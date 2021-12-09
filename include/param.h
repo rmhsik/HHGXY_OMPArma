@@ -30,7 +30,7 @@ struct parameters{
         double E0x      = 0.067;
         double E0z      = 0.0;
         double B0x      = 0.0;
-        double B0z      = 0.0;
+        double B0z      = 0.12;
         int env         = 0; //0 -> sin2; 1 -> trap 
         
 	// TIME (FIELD AND SIMULATION)

@@ -13,8 +13,8 @@ void CoulombPotential(arma::dmat &V, arma::vec &x,arma::vec &z){
     }
 }
 
-void HamX(arma::cx_mat &Hx, arma::dmat &Potential,double VecPot, arma::vec &x, const double dx, const int i){
-    arma::cx_colvec d = 1.0/pow(dx,2)*arma::ones<arma::cx_colvec>(x.n_elem) + 0.5*(Potential.col(i))+0.5/(pow(137.04,2))*pow(VecPot,2);
+void HamX(arma::cx_mat &Hx, arma::dmat &Potential,double VecPot, double BField, arma::vec &x, arma::vec &z, const double dx, const double dz, const int i){
+    arma::cx_colvec d = 1.0/pow(dx,2)*arma::ones<arma::cx_colvec>(x.n_elem) + 0.5*(Potential.col(i) + 1.0/8.0*pow(BField,2)*x%x)+0.5/(pow(137.04,2))*pow(VecPot,2);
     arma::cx_colvec u = -1.0/(2.0*dx*dx)*arma::ones<arma::cx_colvec>(x.n_elem)+std::complex<double>(0.0,1.0)/(2.0*137.04*dx)*VecPot;
     arma::cx_colvec l = -1.0/(2.0*dx*dx)*arma::ones<arma::cx_colvec>(x.n_elem)-std::complex<double>(0.0,1.0)/(2.0*137.04*dx)*VecPot;
 
@@ -27,22 +27,8 @@ void HamX(arma::cx_mat &Hx, arma::dmat &Potential,double VecPot, arma::vec &x, c
 }
 
 
-void HamX(arma::cx_mat &Hx, arma::dmat &Potential,double VecPot, arma::vec &x, arma::vec &z, const double dx, const double dz, const int i){
-    arma::cx_colvec d = 1.0/pow(dz,2)*arma::ones<arma::cx_colvec>(x.n_elem) +0.5*(Potential.col(i))+0.5/(pow(137.04,2))*pow(VecPot,2);
-    arma::cx_colvec u = -1.0/(2.0*dz*dz)*arma::ones<arma::cx_colvec>(x.n_elem)+std::complex<double>(0.0,1.0)/(2.0*137.04*dz)*VecPot;
-    arma::cx_colvec l = -1.0/(2.0*dz*dz)*arma::ones<arma::cx_colvec>(x.n_elem)-std::complex<double>(0.0,1.0)/(2.0*137.04*dz)*VecPot;
-
-    Hx.col(0) = u;
-    Hx.col(1) = d;
-    Hx.col(2) = l;
-
-    Hx.col(0)(x.n_elem-1) = 0.0;
-    Hx.col(2)(0) = 0.0;
-}
-
-
-void HamZ(arma::cx_mat &Hz, arma::dmat &Potential,double VecPot, arma::vec &x, arma::vec &z, const double dx, const double dz, const int i){
-    arma::cx_colvec d = 1.0/pow(dz,2)*arma::ones<arma::cx_colvec>(z.n_elem) +0.5*(Potential.row(i).t())+0.5/(pow(137.04,2))*pow(VecPot,2);
+void HamZ(arma::cx_mat &Hz, arma::dmat &Potential,double VecPot, double BField, arma::vec &x, arma::vec &z, const double dx, const double dz, const int i){
+    arma::cx_colvec d = 1.0/pow(dz,2)*arma::ones<arma::cx_colvec>(z.n_elem) +0.5*(Potential.row(i).t() + 1.0/8.0*pow(BField,2)*x(i)*x(i))+0.5/(pow(137.04,2))*pow(VecPot,2);
     arma::cx_colvec u = -1.0/(2.0*dz*dz)*arma::ones<arma::cx_colvec>(z.n_elem)+std::complex<double>(0.0,1.0)/(2.0*137.04*dz)*VecPot;
     arma::cx_colvec l = -1.0/(2.0*dz*dz)*arma::ones<arma::cx_colvec>(z.n_elem)-std::complex<double>(0.0,1.0)/(2.0*137.04*dz)*VecPot;
 

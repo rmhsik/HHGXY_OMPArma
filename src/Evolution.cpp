@@ -14,40 +14,40 @@ int main(){
     omp_set_num_threads(OMP_NUM_THREADS);    
 
     #ifdef TEXTOUTPUT
-    std::ofstream outfile;
-    outfile.open("output_Evolution.txt");
+        std::ofstream outfile;
+        outfile.open("output_Evolution.txt");
     #endif
     
 
     #ifdef TEXTOUTPUT
-    outfile<<"Parameters:\n";
-    outfile<<"------------\n";
-    outfile<<"xmin: "<<p.xmin<<std::endl;
-    outfile<<"xmax: "<<p.xmax<<std::endl;
-    outfile<<"Nx: "<<p.Nx<<std::endl;
-    outfile<<"dx: "<<p.dx<<std::endl;
-    outfile<<"zmin: "<<p.zmin<<std::endl;
-    outfile<<"zmax: "<<p.zmax<<std::endl;
-    outfile<<"Nz: "<<p.Nz<<std::endl;
-    outfile<<"dz: "<<p.dz<<std::endl;
-    outfile<<"tlim: "<<p.tmax<<std::endl;
-    outfile<<"Nt: "<<p.Nt<<std::endl;
-    outfile<<"dt: "<<p.dt<<std::endl;
+        outfile<<"Parameters:\n";
+        outfile<<"------------\n";
+        outfile<<"xmin: "<<p.xmin<<std::endl;
+        outfile<<"xmax: "<<p.xmax<<std::endl;
+        outfile<<"Nx: "<<p.Nx<<std::endl;
+        outfile<<"dx: "<<p.dx<<std::endl;
+        outfile<<"zmin: "<<p.zmin<<std::endl;
+        outfile<<"zmax: "<<p.zmax<<std::endl;
+        outfile<<"Nz: "<<p.Nz<<std::endl;
+        outfile<<"dz: "<<p.dz<<std::endl;
+        outfile<<"tlim: "<<p.tmax<<std::endl;
+        outfile<<"Nt: "<<p.Nt<<std::endl;
+        outfile<<"dt: "<<p.dt<<std::endl;
 
     #else    
-    std::cout<<"Parameters:\n";
-    std::cout<<"------------\n";
-    std::cout<<"xmin: "<<p.xmin<<std::endl;
-    std::cout<<"xmax: "<<p.xmax<<std::endl;
-    std::cout<<"Nx: "<<p.Nx<<std::endl;
-    std::cout<<"dx: "<<p.dx<<std::endl;
-    std::cout<<"zmin: "<<p.zmin<<std::endl;
-    std::cout<<"zmax: "<<p.zmax<<std::endl;
-    std::cout<<"Nz: "<<p.Nz<<std::endl;
-    std::cout<<"dz: "<<p.dz<<std::endl;
-    std::cout<<"tlim: "<<p.tmax<<std::endl;
-    std::cout<<"Nt: "<<p.Nt<<std::endl;
-    std::cout<<"dt: "<<p.dt<<std::endl;
+        std::cout<<"Parameters:\n";
+        std::cout<<"------------\n";
+        std::cout<<"xmin: "<<p.xmin<<std::endl;
+        std::cout<<"xmax: "<<p.xmax<<std::endl;
+        std::cout<<"Nx: "<<p.Nx<<std::endl;
+        std::cout<<"dx: "<<p.dx<<std::endl;
+        std::cout<<"zmin: "<<p.zmin<<std::endl;
+        std::cout<<"zmax: "<<p.zmax<<std::endl;
+        std::cout<<"Nz: "<<p.Nz<<std::endl;
+        std::cout<<"dz: "<<p.dz<<std::endl;
+        std::cout<<"tlim: "<<p.tmax<<std::endl;
+        std::cout<<"Nt: "<<p.Nt<<std::endl;
+        std::cout<<"dt: "<<p.dt<<std::endl;
     #endif
     std::complex<double> norm;
     std::complex<double> energy;
@@ -99,18 +99,18 @@ int main(){
     arma::cx_mat Mpz_du(p.Nz,p.Nx, arma::fill::zeros);
     
     #ifdef TEXTOUTPUT
-    outfile<<"Matrices definition\n";
+        outfile<<"Matrices definition\n";
     #else
-    std::cout<<"Matrices definition\n";
+        std::cout<<"Matrices definition\n";
     #endif
 
     CoulombPotential(V,x,z);
     Psi.load("results/PsiGround.dat",arma::raw_ascii);
 
     #ifdef TEXTOUTPUT
-    outfile<<"Coulomb, Gaussian\n";
+        outfile<<"Coulomb, Gaussian\n";
     #else
-    std::cout<<"Coulomb, Gaussian\n";
+        std::cout<<"Coulomb, Gaussian\n";
     #endif
 
     for(int i=0; i<p.Nt;i++){
@@ -121,9 +121,9 @@ int main(){
     }
 
     #ifdef TEXTOUTPUT
-    outfile<<"Fields\n";
+        outfile<<"Fields\n";
     #else
-    std::cout<<"Fields\n";
+        std::cout<<"Fields\n";
     #endif
 
     for(int i=0; i<p.Nt;i++){
@@ -132,9 +132,9 @@ int main(){
     }
 
     #ifdef TEXTOUPUT
-    outfile<<"VecPotential \n";
+        outfile<<"VecPotential \n";
     #else
-    std::cout<<"VecPotential \n";
+        std::cout<<"VecPotential \n";
     #endif
 
     norm = arma::as_scalar(arma::sum(arma::sum(arma::conj(Psi)%Psi*p.dx,0)*p.dz,1));
@@ -143,11 +143,11 @@ int main(){
     norm = arma::as_scalar(arma::sum(arma::sum(arma::conj(Psi)%Psi*p.dx,0)*p.dz,1));
     
     #ifdef TEXTOUTPUT
-    outfile<<norm<<std::endl;
-    outfile<<"Norm\n";
+        outfile<<norm<<std::endl;
+        outfile<<"Norm\n";
     #else
-    std::cout<<norm<<std::endl;
-    std::cout<<"Norm\n";
+        std::cout<<norm<<std::endl;
+        std::cout<<"Norm\n";
     #endif
 
     maskZ(MaskZ,x,z,12.0,1.0);
@@ -156,49 +156,49 @@ int main(){
     accelerationMaskX(accMaskX,t,p);
     accelerationMaskZ(accMaskZ,t,p); 
     #ifdef TEXTOUTPUT
-    outfile<<"Mask\n";
+        outfile<<"Mask\n";
     #else
-    std::cout<<"Mask\n";
+        std::cout<<"Mask\n";
     #endif
 
     arma::cx_mat Hx(p.Nx,3,arma::fill::zeros);
     arma::cx_mat Hz(p.Nz,3,arma::fill::zeros);
     for(int i=0;i<p.Nx;i++){
-        HamZ(Hz,V,0.0,x,z,p.dx,p.dz,i);
+        HamZ(Hz,V,0.0,0.0,x,z,p.dx,p.dz,i);
         Hz_dl.col(i) = Hz.col(0);
         Hz_d.col(i) = Hz.col(1);
         Hz_du.col(i) = Hz.col(2);
     }
     #ifdef TEXTOUPUT
-    outfile<<"HamZ\n";
+        outfile<<"HamZ\n";
     #else
-    std::cout<<"HamZ\n";
+        std::cout<<"HamZ\n";
     #endif
 
     for(int i=0;i<p.Nz;i++){
-        HamX(Hx,V,0.0,x,z,p.dx,p.dz,i);
+        HamX(Hx,V,0.0,0.0,x,z,p.dx,p.dz,i);
         Hx_dl.col(i) = Hx.col(0);
         Hx_d.col(i) = Hx.col(1);
         Hx_du.col(i) = Hx.col(2);
     }
     #ifdef TEXTOUTPUT
-    outfile<<"HamX\n";
+        outfile<<"HamX\n";
     #else
-    std::cout<<"HamX\n";
+        std::cout<<"HamX\n";
     #endif
    
     energy = Energy(Hx_dl,Hx_d,Hx_du,Hz_dl,Hz_d,Hz_du,Psi,x,z);
     #ifdef TEXOUTPUT
-    outfile<<"Energy: "<<energy<<std::endl;
+        outfile<<"Energy: "<<energy<<std::endl;
     #else
-    std::cout<<"Energy: "<<energy<<std::endl;
+        std::cout<<"Energy: "<<energy<<std::endl;
     #endif
     double dt = p.dt;
 
     for (int i=0; i<p.Nt;i++){
         for(int j=0;j<p.Nz;j++){
             arma::cx_mat Hx(p.Nx,3,arma::fill::zeros);
-            HamX(Hx,V,VecPotentialX(i),x,z,p.dx,p.dz,j);
+            HamX(Hx,V,VecPotentialX(i),MagneticFieldZ(i),x,z,p.dx,p.dz,j);
             Hx_dl.col(j) = Hx.col(0);
             Hx_d.col(j) = Hx.col(1);
             Hx_du.col(j) = Hx.col(2);
@@ -213,7 +213,7 @@ int main(){
         }
         for(int j=0;j<p.Nx;j++){
             arma::cx_mat Hz(p.Nz,3,arma::fill::zeros);
-            HamZ(Hz,V,VecPotentialZ(i),x,z,p.dx,p.dz,j);
+            HamZ(Hz,V,VecPotentialZ(i),MagneticFieldZ(i),x,z,p.dx,p.dz,j);
             Hz_dl.col(j) = Hz.col(0);
             Hz_d.col(j) = Hz.col(1);
             Hz_du.col(j) = Hz.col(2);
@@ -238,9 +238,9 @@ int main(){
             normVec(i%p.Nsteps) = norm;
             enerVec(i%p.Nsteps) = energy;
             #ifdef TEXTOUTPUT
-            outfile<<"Step: "<<i<<" Energy: "<<energy<<"Norm: "<<norm<<std::endl;
+                outfile<<"Step: "<<i<<" Energy: "<<energy<<"Norm: "<<norm<<std::endl;
             #else
-            std::cout<<"Step: "<<i<<" Energy: "<<energy<<"Norm: "<<norm<<std::endl;
+                std::cout<<"Step: "<<i<<" Energy: "<<energy<<"Norm: "<<norm<<std::endl;
             #endif
         }
     }

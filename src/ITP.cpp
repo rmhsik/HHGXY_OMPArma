@@ -82,14 +82,14 @@ int main(){
     arma::cx_mat Hx(p.Nx,3,arma::fill::zeros);
     arma::cx_mat Hz(p.Nz,3,arma::fill::zeros);
     for(int i=0;i<p.Nx;i++){
-        HamZ(Hz,V,0.0,x,z,p.dx,p.dz,i);
+        HamZ(Hz,V,0.0,0.0,x,z,p.dx,p.dz,i);
         Hz_dl.col(i) = Hz.col(0);
         Hz_d.col(i) = Hz.col(1);
         Hz_du.col(i) = Hz.col(2);
     }
     std::cout<<"HamZ\n";
     for(int i=0;i<p.Nz;i++){
-        HamX(Hx,V,0.0,x,z,p.dx,p.dz,i);
+        HamX(Hx,V,0.0,0.0,x,z,p.dx,p.dz,i);
         Hx_dl.col(i) = Hx.col(0);
         Hx_d.col(i) = Hx.col(1);
         Hx_du.col(i) = Hx.col(2);
@@ -103,7 +103,7 @@ int main(){
     for (int i=0; i<p.Nt_ITP;i++){
         for(int j=0;j<p.Nz;j++){
             arma::cx_mat Hx(p.Nx,3,arma::fill::zeros);
-            HamX(Hx,V,0.0,x,z,p.dx,p.dz,j);
+            HamX(Hx,V,0.0,0.0,x,z,p.dx,p.dz,j);
             Hx_dl.col(j) = Hx.col(0);
             Hx_d.col(j) = Hx.col(1);
             Hx_du.col(j) = Hx.col(2);
@@ -118,7 +118,7 @@ int main(){
         }
         for(int j=0;j<p.Nx;j++){
             arma::cx_mat Hz(p.Nz,3,arma::fill::zeros);
-            HamZ(Hz,V,0.0,x,z,p.dx,p.dz,j);
+            HamZ(Hz,V,0.0,0.0,x,z,p.dx,p.dz,j);
             Hz_dl.col(j) = Hz.col(0);
             Hz_d.col(j) = Hz.col(1);
             Hz_du.col(j) = Hz.col(2);
@@ -146,7 +146,7 @@ int main(){
     for (int i=0; i<p.Nt_ITP;i++){
         for(int j=0;j<p.Nz;j++){
             arma::cx_mat Hx(p.Nx,3,arma::fill::zeros);
-            HamX(Hx,V,0.0,x,z,p.dx,p.dz,j);
+            HamX(Hx,V,0.0,0.0,x,z,p.dx,p.dz,j);
             Hx_dl.col(j) = Hx.col(0);
             Hx_d.col(j) = Hx.col(1);
             Hx_du.col(j) = Hx.col(2);
@@ -161,7 +161,7 @@ int main(){
         }
         for(int j=0;j<p.Nx;j++){
             arma::cx_mat Hz(p.Nz,3,arma::fill::zeros);
-            HamZ(Hz,V,0.0,x,z,p.dx,p.dz,j);
+            HamZ(Hz,V,0.0,0.0,x,z,p.dx,p.dz,j);
             Hz_dl.col(j) = Hz.col(0);
             Hz_d.col(j) = Hz.col(1);
             Hz_du.col(j) = Hz.col(2);
